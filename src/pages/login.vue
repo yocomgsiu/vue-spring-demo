@@ -10,7 +10,7 @@
         <el-input v-model="form.password" type="password" placeholder="请输入密码"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit" >立即登陆</el-button>
+        <el-button type="primary" @click="onSubmit">立即登陆</el-button>
         <el-button>注册</el-button>
       </el-form-item>
     </el-form>
@@ -18,21 +18,41 @@
 </template>
 
 <script>
+  /* eslint-disable */
   // 从vuex引入mapActions方法
-  import { mapActions } from 'vuex'
-
+  import {
+    mapActions
+  } from 'vuex'
+  import {
+    getRequest
+  } from '../utils/api'
   // 登陆实例大量参考了该文章(http://hyuhan.com/2016/11/17/A-data-display-platform/)，谢谢
   let data = {
     // Vue中如果要双向数据绑定，即使字段为空，也要为其设置默认值
     form: {
-      name: 'superAdmin',
-      password: ''
+      name: '123456aA',
+      password: '123456aA'
     },
     msg: '',
     onLogging: false
   }
 
   export default {
+
+    mounted: function () {
+      var _this = this;
+      getRequest("/api/statistics/test", {
+        // keyWord: _this.keyWord,
+        // timeKey: _this.timeKey,
+        // pageable: {pageNumber: 0, pageSize:30}
+      }).then(function (msg) {
+        _this.currentUserName = msg.data;
+      }, function (msg) {
+
+      });
+
+    },
+
     // data必须为一个函数
     data: function () {
       return data
@@ -48,7 +68,9 @@
         // 开个超级用户免密登陆
         if (this.form.name === 'superAdmin') {
           this.loginSuccess()
-          this.logIn({name: 'superAdmin'})
+          this.logIn({
+            name: 'superAdmin'
+          })
           return
         }
         this.onLogging = true
@@ -57,12 +79,16 @@
           this.onLogging = false
           return
         }
-        this.$ajxj.post('/user/login', {name: this.form.name, password: this.form.password})
+        this.$ajxj.post('/user/login', {
+            name: this.form.name,
+            password: this.form.password
+          })
           .then((response) => {
             let data = response.data
             if (data.code === 200) {
-              this.loginSuccess()    // 将登陆状态设置为成功
-              this.logIn(data.data)   // data.data 为服务端传回的用户信息
+              this.loginSuccess() // 将登陆状态设置为成功
+              this.logIn(data.data) // data.data 为服务端传回的用户信息
+              _this.$alert('登录成功!', 'yes!');
             } else {
               this.msg = data.message
             }
@@ -72,9 +98,28 @@
           }).finally(() => {
             this.onLogging = false
           })
-      }
+      },
+      
+      onSubmit2: function () {
+      var _this = this;
+      getRequest("/api/statistics/test", {
+        // keyWord: _this.keyWord,
+        // timeKey: _this.timeKey,
+        // pageable: {pageNumber: 0, pageSize:30}
+      }).then(function (msg) {
+        _this.currentUserName = msg.data;
+      }, function (msg) {
+
+      });
+
+    }
+
+
+
+
     }
   }
+
 </script>
 
 <style>
@@ -82,4 +127,5 @@
     width: 300px;
     margin: 0 auto;
   }
+
 </style>
